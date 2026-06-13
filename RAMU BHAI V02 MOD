@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>⚡ ╰‿╯RAMUㅤᏴᎻᎪᏆ - SECURE HUD v5.5 (LIVE API) ⚡</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@500;700;900&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root { 
+            --neon-blue: #00d2ff; 
+            --danger-red: #ff2a5f; 
+            --panel-bg: rgba(255, 255, 255, 0.98);
+            --theme-green: #10b981;
+        }
+        
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            font-family: 'Rajdhani', 'Orbitron', sans-serif; 
+            user-select: none;
+        }
+        
+        body, html { 
+            height: 100%; 
+            width: 100%; 
+            overflow: hidden; 
+            background: #f1f5f9; 
+        }
+
+        #gameFrame { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            border: none; 
+            z-index: 1; 
+        }
+
+        #intro-overlay {
+            position: fixed;
+            inset: 0;
+            background: #f8fafc;
+            z-index: 20000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #0f172a;
+        }
+
+        .matrix-loader {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 900;
+            text-align: center;
+            letter-spacing: 3px;
+            margin-bottom: 25px;
+            color: #0f172a;
+        }
+
+        .scan-line {
+            width: 220px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+            box-shadow: 0 0 10px var(--neon-blue);
+            position: relative;
+            animation: scanMover 2s infinite ease-in-out;
+        }
+
+        /* पॉपअप सिक्योरिटी बॉक्स (छिपाने/लाने वाला) */
+        #loginBox {
+            position: fixed; 
+            width: 340px; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            background: var(--panel-bg);
+            border: 2px solid #cbd5e1; 
+            border-top: 4px solid var(--neon-blue);
+            border-radius: 20px;
+            z-index: 10010; 
+            padding: 25px 20px; 
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.3);
+            backdrop-filter: blur(12px);
+            display: none; /* डिफ़ॉल्ट रूप से बंद रहेगा */
+        }
+
+        .warning-container {
+            background: rgba(239, 68, 68, 0.06);
+            border: 1px dashed #ef4444;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        .warning-title {
+            color: #b91c1c;
+            font-size: 13px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .warning-text {
+            color: #475569;
+            font-size: 11.5px;
+            line-height: 14px;
+            font-weight: 700;
+        }
+
+        #loginBox input { width: 100%; padding: 12px; margin-bottom: 12px; background: #fff; border: 1px solid #cbd5e1; color: #0f172a; text-align: center; border-radius: 10px; outline: none; font-size: 15px; font-family: 'Orbitron', sans-serif; font-weight: bold; letter-spacing: 5px; }
+        
+        .action-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .btn-submit { width: 100%; padding: 12px; background: linear-gradient(135deg, #0f172a, #1e293b); color: #fff; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 12px; border-radius: 10px; border: none; cursor: pointer; letter-spacing: 1px; }
+        
+        /* टेलीग्राम लिंक्स बटन्स */
+        .btn-telegram-chan { 
+            width: 100%; 
+            padding: 10px; 
+            background: #fff; 
+            color: #24a1de; 
+            font-family: 'Orbitron', sans-serif; 
+            font-weight: 800; 
+            font-size: 11px; 
+            border-radius: 10px; 
+            border: 2px solid #24a1de; 
+            cursor: pointer; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(36, 161, 222, 0.1);
+        }
+
+        .btn-telegram-dm { 
+            width: 100%; 
+            padding: 10px; 
+            background: #24a1de; 
+            color: #fff; 
+            font-family: 'Orbitron', sans-serif; 
+            font-weight: 800; 
+            font-size: 11px; 
+            border-radius: 10px; 
+            border: none; 
+            cursor: pointer; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(36, 161, 222, 0.2);
+        }
+
+        /* मुख्य इंजेक्टर बॉक्स */
+        #injectorBox { position: fixed; width: 210px; top: 25px; right: 20px; background: rgba(255, 255, 255, 0.96); border: 1px solid #cbd5e1; border-top: 3px solid var(--neon-blue); border-radius: 14px; z-index: 10005; display: block; box-shadow: 0 10px 25px rgba(0,0,0,0.08); overflow: hidden; }
+        .handle { background: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #334155; padding: 8px; font-size: 10px; font-family: 'Orbitron', sans-serif; font-weight: 700; text-align: center; cursor: move; display: flex; align-items: center; justify-content: center; gap: 4px; touch-action: none; }
+        .inj-content { padding: 12px 6px; text-align: center; }
+
+        /* एक्टिवेट करने वाला मुख्य बटन (पहले दिखेगा) */
+        #activationTriggerBtn {
+            width: 90%; padding: 12px; background: linear-gradient(135deg, #00d2ff, #0066ff); color: #fff; border: none; border-radius: 8px; font-size: 11px; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3); margin: 5px 0;
+        }
+
+        /* प्रेडिक्शन का मुख्य डेटा एरिया (शुरुआत में छुपा रहेगा) */
+        #mainCorePanelData { display: none; }
+
+        .game-modes { display: flex; gap: 4px; margin-bottom: 8px; padding: 0 4px; }
+        .mode-btn { flex: 1; padding: 5px; background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; font-family: 'Orbitron'; font-weight: 700; font-size: 9px; border-radius: 6px; cursor: pointer; }
+        .mode-btn.active { background: #0f172a; color: #fff; border-color: #0f172a; }
+
+        .win-rate-badge { font-size: 9px; font-family: 'Orbitron', sans-serif; color: #b45309; font-weight: 900; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); padding: 2px 8px; border-radius: 20px; display: inline-block; margin-bottom: 6px; }
+        #periodText { font-size: 11px; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #64748b; margin-bottom: 4px; }
+        #periodText span { color: var(--neon-blue); font-weight: 900; }
+
+        #resText { font-size: 20px; font-family: 'Orbitron', sans-serif; font-weight: 900; margin: 2px 0; color: #0f172a; letter-spacing: 1px; }
+        #numText { font-size: 12px; font-family: 'Orbitron', sans-serif; font-weight: 700; color: #b45309; margin-bottom: 8px; background: rgba(217, 119, 6, 0.08); display: inline-block; padding: 2px 8px; border-radius: 4px; }
+
+        #timer { font-size: 12px; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #334155; background: #f1f5f9; display: inline-block; padding: 2px 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 8px; }
+        .toggle-hist-btn { width: 90%; padding: 6px; background: #0f172a; color: #fff; border: none; border-radius: 6px; font-size: 10px; font-family: 'Orbitron'; font-weight: bold; cursor: pointer; letter-spacing: 1px; }
+
+        /* लाइव सर्वर अनलिमिटेड हिस्ट्री बॉक्स */
+        #historyBox {
+            position: fixed; width: 340px; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: #090f1d; border: 1px solid #1e293b; border-radius: 14px;
+            z-index: 10006; padding: 12px; color: #fff; max-height: 200px;
+            overflow-y: auto; display: none; box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+        #historyBox::-webkit-scrollbar { width: 4px; }
+        #historyBox::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        
+        .history-title { font-size: 11px; color: #94a3b8; border-bottom: 1px solid #1e293b; padding-bottom: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; font-weight: bold; font-family: 'Orbitron'; }
+        .history-item { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 6px 2px; border-bottom: 1px solid rgba(255,255,255,0.03); align-items: center; }
+        
+        .tag-win { color: #10b981; font-weight: bold; }
+        .tag-loss { color: #ef4444; font-weight: bold; }
+        .tag-jackpot { color: #d946ef; font-weight: 900; text-shadow: 0 0 8px #d946ef; }
+        .tag-wait { color: #eab308; font-weight: bold; animation: pulse 1s infinite alternate; }
+
+        @keyframes pulse { from { opacity: 0.5; } to { opacity: 1; } }
+        @keyframes scanMover { 0%, 100% { transform: translateY(-12px); opacity: 0.3; } 50% { transform: translateY(12px); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div id="intro-overlay">
+        <div class="matrix-loader">
+            <i class="fas fa-server" style="margin-bottom: 12px; font-size: 30px; color: var(--neon-blue);"></i><br>
+            ╰‿╯RAMUㅤᏴᎻᎪᏆ<br>
+            <span style="font-size:11px; color:#94a3b8; font-family:'JetBrains Mono';">LIVE API SERVER CONNECTED</span>
+        </div>
+        <div class="scan-line"></div>
+    </div>
+
+    <!-- लाइव गेम फ़्रेम -->
+    <iframe id="gameFrame" src="https://bdgwinmy.cc//#/register?invitationCode=8261315097340"></iframe>
+
+    <!-- पॉपअप होने वाला चेतावनी + पासवर्ड बॉक्स -->
+    <div id="loginBox">
+        <h2 style="font-family:'Orbitron'; font-size:19px; color:#0f172a; margin-bottom:3px;">SECURITY VERIFY</h2>
+        <div style="font-size: 11px; color: #64748b; font-weight: bold; margin-bottom: 15px;">BY NG BITTU 👾</div>
+        
+        <!-- कस्टमाइज्ड चेतावनी बॉक्स -->
+        <div class="warning-container">
+            <div class="warning-title"><i class="fas fa-triangle-exclamation"></i> MANDATORY RULES:</div>
+            <div class="warning-text">
+                हैक तभी एक्टिवेट होगा जब आप हमारे लिंक से गेम में न्यू रजिस्टर करके <span style="color:#ef4444; font-weight:900;">₹500 का डिपॉजिट</span> करेंगे। डिपॉजिट का स्क्रीनशॉट टेलीग्राम पर भेजकर पासवर्ड ले सकते हैं!
+            </div>
+        </div>
+
+        <input type="password" id="pass" placeholder="ACCESS KEY" autocomplete="off">
+        
+        <div class="action-btns">
+            <button class="btn-submit" onclick="unlock()"><i class="fas fa-shield-halved"></i> INITIALIZE API CORE</button>
+            
+            <!-- टेलीग्राम चैनल लिंक -->
+            <a href="https://t.me/+h5jDuTLxOEQ4NmVl" target="_blank" class="btn-telegram-chan">
+                <i class="fab fa-telegram"></i> JOIN TELEGRAM CHANNEL
+            </a>
+
+            <!-- टेलीग्राम पर्सनल DM लिंक -->
+            <a href="https://t.me/RamBhai1023" target="_blank" class="btn-telegram-dm">
+                <i class="fas fa-paper-plane"></i> SEND SCREENSHOT TO RAMU BHAI
+            </a>
+        </div>
+    </div>
+
+    <!-- मुख्य इंजेक्टर पैनल -->
+    <div id="injectorBox">
+        <div class="handle" id="injHandle"><i class="fas fa-circle-nodes"></i> RAMU LIVE API v5.5</div>
+        <div class="inj-content">
+            
+            <!-- शुरुआत में केवल यह बटन दिखेगा जो चेतावनी पॉपअप खोलेगा -->
+            <button id="activationTriggerBtn" onclick="openActivationPopup()"><i class="fas fa-key"></i> ACTIVATE HUD</button>
+
+            <!-- पासवर्ड डालने के बाद यह पूरा प्रेडिक्शन डेटा एरिया चालू हो जाएगा -->
+            <div id="mainCorePanelData">
+                <div class="game-modes">
+                    <button class="mode-btn active" id="btn30S" onclick="switchMode('30S')">GO 30S</button>
+                    <button class="mode-btn" id="btn1M" onclick="switchMode('1M')">GO 1M</button>
+                </div>
+
+                <div class="win-rate-badge" id="rateBadge">ACCURACY: 98%</div>
+                <div id="periodText">NEXT: <span id="periodNum">---</span></div>
+                <div id="resText">WAIT</div>
+                <div id="numText">NUM: ?, ?</div>
+                <br>
+                <div id="timer">00s</div>
+                <br>
+                <button class="toggle-hist-btn" onclick="toggleHistoryUI()"><i class="fas fa-database"></i> SERVER LOGS</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- लाइव सिंक नो-लिमिट हिस्ट्री बॉक्स -->
+    <div id="historyBox">
+        <div class="history-title">
+            <span><i class="fas fa-network-wired"></i> LIVE API TRACKER</span>
+            <span id="activeModeText" style="color: var(--neon-blue);">MODE: 30S</span>
+        </div>
+        <div id="historyLogs"></div>
+    </div>
+
+    <script>
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const intro = document.getElementById('intro-overlay');
+                intro.style.transition = 'opacity 0.5s ease';
+                intro.style.opacity = '0';
+                setTimeout(() => { intro.style.display = 'none'; }, 500);
+            }, 2500);
+        });
+
+        // बटन दबाने पर चेतावनी/पासवर्ड बॉक्स लाने का फंक्शन
+        function openActivationPopup() {
+            document.getElementById('loginBox').style.display = 'block';
+        }
+
+        function unlock() {
+            const entered = document.getElementById('pass').value;
+            const secureCheck = "704215"; 
+            if(entered === secureCheck) {
+                // पासवर्ड सही होने पर लॉगिन बॉक्स हटाएँ और प्रेडिक्शन चालू करें
+                document.getElementById('loginBox').style.display = 'none';
+                document.getElementById('activationTriggerBtn').style.display = 'none';
+                document.getElementById('mainCorePanelData').style.display = 'block';
+                document.getElementById('historyBox').style.display = 'block';
+                startLiveApiEngine();
+            } else { alert("❌ INVALID ACCESS KEY!"); }
+        }
+
+        function toggleHistoryUI() {
+            const hBox = document.getElementById('historyBox');
+            hBox.style.display = (hBox.style.display === 'block' || hBox.style.display === '') ? 'none' : 'block';
+        }
+
+        function makeDraggable(element, handle) {
+            let active = false, xOff = 0, yOff = 0, startX, startY;
+            const dragStart = (e) => {
+                startX = (e.type === "touchstart" ? e.touches[0].clientX : e.clientX) - xOff;
+                startY = (e.type === "touchstart" ? e.touches[0].clientY : e.clientY) - yOff;
+                active = true;
+            };
+            const drag = (e) => {
+                if (active) {
+                    let currentX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
+                    let currentY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
+                    xOff = currentX - startX;
+                    yOff = currentY - startY;
+                    element.style.transform = `translate3d(${xOff}px, ${yOff}px, 0)`;
+                }
+            };
+            handle.addEventListener("touchstart", dragStart);
+            document.addEventListener("touchmove", drag);
+            document.addEventListener("touchend", () => active = false);
+            handle.addEventListener("mousedown", dragStart);
+            document.addEventListener("mousemove", drag);
+            document.addEventListener("mouseup", () => active = false);
+        }
+        makeDraggable(document.getElementById("injectorBox"), document.getElementById("injHandle"));
+
+
+        // ─── कोर लाइव API डेटा इंजन ───
+        const API_30S = "https://draw.ar-lottery01.com/WinGo/WinGo_30S/GetHistoryIssuePage.json";
+        const API_1M = "https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json";
+
+        let currentMode = "30S";
+        let apiEngineState = {
+            "30S": { lastPeriod: "", predictedPeriod: "", currentPred: "WAIT", targetNums: ["?","?"], logs: [], continuousLoss: 0 },
+            "1M":  { lastPeriod: "", predictedPeriod: "", currentPred: "WAIT", targetNums: ["?","?"], logs: [], continuousLoss: 0 }
+        };
+
+        function switchMode(mode) {
+            if (currentMode === mode) return;
+            currentMode = mode;
+            document.getElementById("btn30S").classList.toggle("active", mode === "30S");
+            document.getElementById("btn1M").classList.toggle("active", mode === "1M");
+            document.getElementById("activeModeText").innerText = "MODE: " + mode;
+            renderPanelAndLogsUI();
+        }
+
+        function startLiveApiEngine() {
+            setInterval(() => {
+                let sec = new Date().getSeconds();
+                let remaining = (currentMode === "30S") ? (30 - (sec % 30)) : (60 - sec);
+                document.getElementById("timer").innerText = (remaining < 10 ? "0" : "") + remaining + "s";
+            }, 1000);
+
+            setInterval(() => { fetchServerData("30S", API_30S); }, 1500);
+            setInterval(() => { fetchServerData("1M", API_1M); }, 1500);
+        }
+
+        async function fetchServerData(mode, endpoint) {
+            try {
+                const response = await fetch(endpoint + "?t=" + Date.now());
+                const json = await response.json();
+                
+                if (json && json.data && json.data.list && json.data.list.length > 0) {
+                    const latestNode = json.data.list[0];
+                    const serverPeriod = latestNode.issueNumber.toString(); 
+                    const actualNumber = parseInt(latestNode.number);
+                    let mData = apiEngineState[mode];
+
+                    if (serverPeriod !== mData.lastPeriod) {
+                        let prevTargetNums = [...mData.targetNums];
+                        
+                        if (mData.predictedPeriod === serverPeriod && mData.currentPred !== "WAIT") {
+                            processRoundEnd(mode, serverPeriod, actualNumber, prevTargetNums);
+                        }
+                        
+                        mData.predictedPeriod = (BigInt(serverPeriod) + 1n).toString();
+                        
+                        if (mode === "30S") {
+                            calculate30SAlgorithm(mode, json.data.list);
+                        } else {
+                            calculate1MAlgorithm(mode, json.data.list);
+                        }
+
+                        generateWaitingLog(mode);
+                        mData.lastPeriod = serverPeriod;
+
+                        if (currentMode === mode) {
+                            renderPanelAndLogsUI();
+                        }
+                    }
+                }
+            } catch (e) { console.log("Syncing API..."); }
+        }
+
+        function calculate30SAlgorithm(mode, list) {
+            let mData = apiEngineState[mode];
+            let t0 = parseInt(list[0].number) >= 5 ? "BIG" : "SMALL";
+            let t1 = parseInt(list[1].number) >= 5 ? "BIG" : "SMALL";
+            
+            let pred = (t0 === t1) ? t0 : (t0 === "BIG" ? "SMALL" : "BIG");
+            if (mData.continuousLoss >= 1) pred = (t0 === "BIG") ? "SMALL" : "BIG"; 
+
+            mData.currentPred = pred;
+            finalizeNumbers(mData);
+        }
+
+        function calculate1MAlgorithm(mode, list) {
+            let mData = apiEngineState[mode];
+            let subset = list.slice(0, 10);
+            let bigCount = subset.filter(x => parseInt(x.number) >= 5).length;
+            
+            let pred = (bigCount >= 5) ? "BIG" : "SMALL";
+            if (mData.continuousLoss >= 1) {
+                let t0 = parseInt(list[0].number) >= 5 ? "BIG" : "SMALL";
+                pred = (t0 === "BIG") ? "SMALL" : "BIG";
+            }
+
+            mData.currentPred = pred;
+            finalizeNumbers(mData);
+        }
+
+        function finalizeNumbers(mData) {
+            let pool = mData.currentPred === "BIG" ? [5, 6, 7, 8, 9] : [0, 1, 2, 3, 4];
+            pool.sort(() => Math.random() - 0.5);
+            mData.targetNums = [pool[0], pool[1]];
+        }
+
+        function generateWaitingLog(mode) {
+            let mData = apiEngineState[mode];
+            let shortPeriod = mData.predictedPeriod.slice(-3);
+            
+            mData.logs = mData.logs.filter(item => item.status !== "⏳ WAIT");
+
+            mData.logs.unshift({
+                period: shortPeriod,
+                pred: mData.currentPred + " (" + mData.targetNums.join(",") + ")",
+                result: "OPENING...",
+                status: "⏳ WAIT",
+                css: "tag-wait"
+            });
+        }
+
+        function processRoundEnd(mode, checkedPeriod, actualNumber, prevTargetNums) {
+            const actualBS = actualNumber >= 5 ? "BIG" : "SMALL";
+            let mData = apiEngineState[mode];
+            let shortCheck = checkedPeriod.slice(-3);
+
+            let isWin = (mData.currentPred === actualBS);
+            let isJackpot = prevTargetNums.includes(actualNumber);
+
+            let statusText = "❌ LOSS", tagClass = "tag-loss";
+
+            if (isWin) {
+                mData.continuousLoss = 0;
+                if (isJackpot) {
+                    statusText = "✨ JACKPOT"; tagClass = "tag-jackpot";
+                } else {
+                    statusText = "✅ WIN"; tagClass = "tag-win";
+                }
+            } else {
+                mData.continuousLoss++;
+            }
+
+            let targetLog = mData.logs.find(item => item.period === shortCheck);
+            if (targetLog) {
+                targetLog.result = actualNumber + " (" + actualBS + ")";
+                targetLog.status = statusText;
+                targetLog.css = tagClass;
+            } else {
+                mData.logs.unshift({
+                    period: shortCheck,
+                    pred: mData.currentPred + " (" + prevTargetNums.join(",") + ")",
+                    result: actualNumber + " (" + actualBS + ")",
+                    status: statusText,
+                    css: tagClass
+                });
+            }
+        }
+
+        function renderPanelAndLogsUI() {
+            let mData = apiEngineState[currentMode];
+            
+            document.getElementById("periodNum").innerText = mData.predictedPeriod ? mData.predictedPeriod.slice(-3) : "---";
+            
+            const resEl = document.getElementById("resText");
+            resEl.innerText = mData.currentPred;
+            resEl.style.color = mData.currentPred === "BIG" ? "var(--danger-red)" : "var(--theme-green)";
+            
+            document.getElementById("numText").innerText = "NUM: " + mData.targetNums.join(", ");
+
+            const container = document.getElementById("historyLogs");
+            let html = "";
+            mData.logs.forEach(item => {
+                html += `<div class="history-item">
+                    <span>P: ${item.period}</span>
+                    <span style="color:#94a3b8;">EXP: ${item.pred}</span>
+                    <span>RES: ${item.result}</span>
+                    <span class="${item.css}">${item.status}</span>
+                </div>`;
+            });
+            container.innerHTML = html ? html : `<div style="text-align:center;font-size:10px;color:#64748b;padding:10px;">CONNECTING TO GAME SERVER...</div>`;
+        }
+    </script>
+</body>
+</html>
